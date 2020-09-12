@@ -37,6 +37,10 @@ Ebkr, Harb, iDeathHD, KingEnderBrine
 blazingdrummer, breadguy69, Dragasath, FunkFrog, itλy, pindab0ter, Siponodo, Undead, VoidInsanity
 
 ## Changelog ##
+** v1.0.1 **
+
+* Removed redunant BiggerBazaar code.
+
 ** v1.0.0 **
 
 * Initial Release

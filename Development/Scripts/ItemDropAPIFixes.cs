@@ -18,7 +18,7 @@ namespace Phedg1Studios {
         [BepInDependency("com.funkfrog_sipondo.sharesuite", BepInDependency.DependencyFlags.SoftDependency)]
         [BepInDependency("com.MagnusMagnuson.BiggerBazaar", BepInDependency.DependencyFlags.SoftDependency)]
         [R2API.Utils.R2APISubmoduleDependency("ItemDropAPIFixes")]
-        [BepInPlugin(PluginGUID, "ItemDropAPIFixes", "1.0.0")]
+        [BepInPlugin(PluginGUID, "ItemDropAPIFixes", "1.0.1")]
 
         public class ItemDropAPIFixes : BaseUnityPlugin {
             static public ItemDropAPIFixes itemDropAPIFixes;
@@ -45,9 +45,6 @@ namespace Phedg1Studios {
                 itemDropAPIFixes = this;
                 Catalogue.PopulateItemCatalogues();
                 SetHooks();
-                if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.MagnusMagnuson.BiggerBazaar")) {
-                    AddressBiggerBazaar();
-                }
             }
 
             public void SetHooks() {
@@ -468,85 +465,6 @@ namespace Phedg1Studios {
                 if (monsterDropList.availableEquipmentDropList.Count > 0) {
                     orig(inventory);
                 }
-            }
-
-
-
-
-            //-------------------------
-            //-------------------------
-
-
-            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
-            static public void AddressBiggerBazaar() {
-                System.Type bazaar = System.Reflection.Assembly.GetAssembly(typeof(BiggerBazaar.BiggerBazaar)).GetType("BiggerBazaar.Bazaar");
-                System.Reflection.MethodInfo startBazaar = bazaar.GetMethod("StartBazaar", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                System.Reflection.MethodInfo replacement = typeof(ItemDropAPIFixes).GetMethod(nameof(StartBazaar), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                MonoMod.RuntimeDetour.Hook hook = new MonoMod.RuntimeDetour.Hook(startBazaar, replacement);
-                hook.Apply();
-            }
-
-            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
-            static void StartBazaar(orig_StartBazaar orig, object self, object biggerBazaarObject) {
-                BiggerBazaar.BiggerBazaar biggerBazaar = (BiggerBazaar.BiggerBazaar)biggerBazaarObject;
-                BepInEx.Configuration.ConfigEntry<float> configTier1 = null;
-                BepInEx.Configuration.ConfigEntry<float> configTier2 = null;
-                BepInEx.Configuration.ConfigEntry<float> configTier3 = null;
-                System.Reflection.MethodInfo setTotalRarity = null;
-                float rarityOld1 = 0;
-                float rarityOld2 = 0;
-                float rarityOld3 = 0;
-                System.Reflection.FieldInfo tier1Info = null;
-                System.Reflection.FieldInfo tier2Info = null;
-                System.Reflection.FieldInfo tier3Info = null;
-
-                System.Type type = System.Reflection.Assembly.GetAssembly(typeof(BiggerBazaar.BiggerBazaar)).GetType("BiggerBazaar.Bazaar");
-                setTotalRarity = type.GetMethod("SetTotalTierRarity", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-                type = System.Reflection.Assembly.GetAssembly(typeof(BiggerBazaar.BiggerBazaar)).GetType("BiggerBazaar.ModConfig");
-                tier1Info = type.GetField("tier1Rarity", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                tier2Info = type.GetField("tier2Rarity", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                tier3Info = type.GetField("tier3Rarity", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                configTier1 = (BepInEx.Configuration.ConfigEntry<float>)tier1Info.GetValue(null);
-                configTier2 = (BepInEx.Configuration.ConfigEntry<float>)tier2Info.GetValue(null);
-                configTier3 = (BepInEx.Configuration.ConfigEntry<float>)tier3Info.GetValue(null);
-
-                rarityOld1 = configTier1.Value;
-                rarityOld2 = configTier2.Value;
-                rarityOld3 = configTier3.Value;
-
-                float rarityAdjusted1 = rarityOld1;
-                if (playerInteractables.tiersPresent["tier1"] == false) {
-                    rarityAdjusted1 = 0;
-                }
-                float rarityAdjusted2 = rarityOld2;
-                if (playerInteractables.tiersPresent["tier2"] == false) {
-                    rarityAdjusted2 = 0;
-                }
-                float rarityAdjusted3 = rarityOld1;
-                if (playerInteractables.tiersPresent["tier3"] == false) {
-                    rarityAdjusted3 = 0;
-                }
-                configTier1.Value = rarityAdjusted1;
-                configTier2.Value = rarityAdjusted2;
-                configTier3.Value = rarityAdjusted3;
-
-                tier1Info.SetValue(null, configTier1);
-                tier2Info.SetValue(null, configTier2);
-                tier3Info.SetValue(null, configTier3);
-                setTotalRarity.Invoke(self, new object[0]);
-
-                if ((rarityOld1 > 0 && playerInteractables.tiersPresent["tier1"]) || (rarityOld2 > 0 && playerInteractables.tiersPresent["tier2"]) || (rarityOld3 > 0 && playerInteractables.tiersPresent["tier3"])) {
-                    orig(self, biggerBazaar);
-                }
-
-                configTier1.Value = rarityOld1;
-                configTier2.Value = rarityOld2;
-                configTier3.Value = rarityOld3;
-                tier1Info.SetValue(null, configTier1);
-                tier2Info.SetValue(null, configTier2);
-                tier3Info.SetValue(null, configTier3);
-                setTotalRarity.Invoke(self, new object[0]);
             }
 
 

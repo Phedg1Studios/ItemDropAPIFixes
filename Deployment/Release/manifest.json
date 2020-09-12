@@ -1,6 +1,6 @@
 {
     "name": "ItemDropAPIFixes",
-    "version_number": "1.0.0",
+    "version_number": "1.0.1",
     "website_url": "https://github.com/Phedg1Studios/ItemDropAPIFixes",
     "description": "Fixes common issues with *R2API's ItemDropAPI* submodule. Also contains an API to set which items monsters can use.",
     "dependencies": [
